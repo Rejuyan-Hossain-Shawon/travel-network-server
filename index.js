@@ -1,5 +1,6 @@
 const express = require('express')
 const { MongoClient } = require('mongodb');
+const ObjectId = require("mongodb").ObjectId;
 const app = express()
 const cors = require("cors")
 require('dotenv').config()
@@ -21,12 +22,49 @@ async function run() {
         await client.connect();
         const database = client.db("shawon_travel-network");
         const tourProgramsCollection = database.collection("tour_programs");
+        const ordersCollection = database.collection("Orders");
 
         // get all the tour programs from database
         app.get("/programs", async (req, res) => {
             const cursor = tourProgramsCollection.find({});
             const tourPrograms = await cursor.toArray();
             res.json(tourPrograms);
+        })
+
+
+        //   my order list done
+        app.get("/myorders", async (req, res) => {
+            const emailData = req.query.email;
+            console.log(emailData);
+            if (emailData) {
+                // Object.values(emailData) 
+                const query = { email: emailData };
+                const result = await ordersCollection.find(query).toArray();
+                console.log(result);
+                res.json(result)
+            }
+
+
+        })
+
+        // post method order placed right fully
+        app.post("/program/order", async (req, res) => {
+
+            const newOrder = req.body;
+            const result = await ordersCollection.insertOne(newOrder);
+
+            res.json(result);
+
+        })
+        // delete method by id 
+
+        app.delete("/order/delete/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+
+
         })
 
 
@@ -40,9 +78,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-    res.send('shawon travel network server is running')
-})
+
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
