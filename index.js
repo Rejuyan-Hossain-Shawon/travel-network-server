@@ -30,6 +30,12 @@ async function run() {
             const tourPrograms = await cursor.toArray();
             res.json(tourPrograms);
         })
+        // get all order of user 
+        app.get("/allorders", async (req, res) => {
+            const cursor = ordersCollection.find({});
+            const allOrders = await cursor.toArray();
+            res.json(allOrders);
+        })
 
 
         //   my order list done
@@ -45,6 +51,14 @@ async function run() {
             }
 
 
+        })
+        // get new tour program 
+
+        app.post("/program", async (req, res) => {
+            const newTourProgram = req.body;
+            const result = await tourProgramsCollection.insertOne(newTourProgram);
+
+            res.json(result)
         })
 
         // post method order placed right fully
